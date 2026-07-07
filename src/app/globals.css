@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --freego-teal: #0F4C4C;
+  --freego-orange: #F28C38;
+  --freego-ivory: #F8F3EA;
+  --freego-ink: #1F2A2A;
+  --freego-gray: #D8DDD8;
+  --freego-white: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--freego-ivory);
+  color: var(--freego-ink);
+  font-size: 16px;
+  font-family: "Inter", "Noto Sans TC", "Noto Sans", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(242, 140, 56, 0.28);
+}
+
+.container-freego {
+  width: min(100% - 32px, 1200px);
+  margin-inline: auto;
+}
+
+.eyebrow {
+  color: var(--freego-orange);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.section-spacing {
+  padding-block: 92px;
+}
+
+p {
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .container-freego {
+    width: min(100% - 24px, 1200px);
+  }
+
+  .section-spacing {
+    padding-block: 64px;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.7s ease-out 0.2s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-up-delay {
+    animation: none;
+  }
+}
