@@ -28,6 +28,11 @@ import { useLang } from "@/lib/i18n";
 
 const WEB3FORMS_KEY = "73cec211-5017-4fc4-a381-0e26462302da";
 
+// 綠界收款連結：依「行程總價」分流
+const ECPAY_LINK_LOW = "https://p.ecpay.com.tw/CF6810E"; // 總價 NT$10,000 以內
+const ECPAY_LINK_HIGH = "https://p.ecpay.com.tw/901A4AD"; // 總價超過 NT$10,000
+const ECPAY_LINK_THRESHOLD = 10000;
+
 function fmt(template: string, ...values: Array<string | number>): string {
   let result = template;
   for (const value of values) {
@@ -139,6 +144,11 @@ export function BookingSection() {
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState("");
   const [paidOrder, setPaidOrder] = useState("");
+  const [orderInfo, setOrderInfo] = useState<{
+    orderNo: string;
+    payUrl: string;
+    deposit: number;
+  } | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -254,7 +264,9 @@ export function BookingSection() {
       `聯絡姓名：${name}`,
       `聯絡方式：${contact}`,
       `特殊需求：${notes || "無"}`,
-      `付款方式：綠界 ECPay（訂單成立時導向付款）`
+      `付款連結：${
+        quote.total <= ECPAY_LINK_THRESHOLD ? ECPAY_LINK_LOW : ECPAY_LINK_HIGH
+      }（客人自行輸入訂金金額）`
     ].join("\n");
 
     fetch("https://api.web3forms.com/submit", {
@@ -269,59 +281,17 @@ export function BookingSection() {
       })
     }).catch(() => undefined);
 
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderNo,
-          amount: quote.deposit,
-          itemName: `${pkgTitle} - ${vehicleName} x1`
-        })
-      });
-      const result = (await response.json().catch(() => null)) as {
-        success: boolean;
-        action?: string;
-        fields?: Record<string, string>;
-        error?: string;
-      } | null;
+    // 依總價分流至對應的綠界收款連結
+    const payUrl =
+      quote.total <= ECPAY_LINK_THRESHOLD ? ECPAY_LINK_LOW : ECPAY_LINK_HIGH;
 
-      if (
-        !response.ok ||
-        !result?.success ||
-        !result.action ||
-        !result.fields
-      ) {
-        console.error(
-          "[FreeGO checkout] failed",
-          response.status,
-          result?.error
-        );
-        throw new Error(result?.error || `HTTP ${response.status}`);
-      }
+    console.log("[FreeGO order]", orderNo, pkgTitle, vehicleName, payUrl);
 
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = result.action;
-      form.style.display = "none";
-      for (const [key, value] of Object.entries(result.fields)) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      }
-      document.body.appendChild(form);
-      form.submit();
-    } catch (error) {
-      console.error("[FreeGO checkout] error", error);
-      setPayError(
-        `${b.payError}${
-          error instanceof Error && error.message ? `（${error.message}）` : ""
-        }`
-      );
-      setPaying(false);
-    }
+    setOrderInfo({ orderNo, payUrl, deposit: quote.deposit });
+    setPaying(false);
+    document
+      .getElementById("book")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   const inputClass =
@@ -763,8 +733,49 @@ export function BookingSection() {
           </div>
         ) : null}
 
+        {/* 訂單成立：前往綠界付款 */}
+        {orderInfo ? (
+          <div className="mx-auto mt-10 max-w-2xl rounded-freego border border-freego-teal/25 bg-white p-8 text-center shadow-soft">
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-freego-teal text-white">
+              <CheckCircle2 className="h-7 w-7" />
+            </span>
+            <p className="mt-5 text-2xl font-black text-freego-teal">
+              {b.orderCreatedTitle}
+            </p>
+            <p className="mt-3 leading-[1.8] text-freego-ink/72">
+              {b.orderCreatedCopy}
+            </p>
+            <p className="mt-5 inline-block rounded-freego bg-freego-ivory px-4 py-2 font-mono text-sm font-bold text-freego-teal">
+              {b.paidOrderLabel}: {orderInfo.orderNo}
+            </p>
+            <div className="mt-4 rounded-freego bg-freego-orange/10 p-5">
+              <p className="text-sm font-bold text-freego-ink/70">
+                {b.payAmountLabel}
+              </p>
+              <p className="mt-1 text-4xl font-black text-freego-orange">
+                {formatNTD(orderInfo.deposit)}
+              </p>
+            </div>
+            <p className="mt-4 rounded-freego bg-freego-ivory p-4 text-left text-sm leading-6 text-freego-ink/72">
+              💡 {b.payInstructions}
+            </p>
+            <a
+              href={orderInfo.payUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-freego bg-freego-orange px-6 text-lg font-black text-freego-ink shadow-[0_12px_28px_rgba(242,140,56,0.3)] transition hover:-translate-y-0.5 hover:bg-[#e77b24]"
+            >
+              <ShieldCheck className="h-6 w-6" />
+              {b.goPayBtn}
+            </a>
+            <p className="mt-4 text-sm leading-6 text-freego-ink/60">
+              {b.afterPayNote}
+            </p>
+          </div>
+        ) : null}
+
         {/* Step 3: 確認付款 */}
-        {step === 3 && pkg && vehicleId && quote ? (
+        {!orderInfo && step === 3 && pkg && vehicleId && quote ? (
           <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[1fr_0.9fr]">
             <div className="rounded-freego border border-freego-gray bg-white p-6 shadow-soft md:p-8">
               <div className="flex items-start justify-between gap-4">
@@ -944,9 +955,6 @@ export function BookingSection() {
                 </p>
               ) : null}
               <p className="mt-4 text-xs leading-5 text-white/60">{b.terms}</p>
-              <p className="mt-2 rounded-freego bg-white/10 p-2.5 text-xs leading-5 text-white/75">
-                {b.testNote}
-              </p>
             </div>
           </div>
         ) : null}

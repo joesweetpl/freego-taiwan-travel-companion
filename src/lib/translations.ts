@@ -419,6 +419,15 @@ const zh = {
     paidCopy:
       "我們已收到你的訂金，訂單編號如下。專人將於 24 小時內透過你留下的聯絡方式與你確認行程細節，出發前一天會提供司機與車輛資訊。",
     paidOrderLabel: "訂單編號",
+    orderCreatedTitle: "訂單已成立！最後一步：支付訂金",
+    orderCreatedCopy:
+      "我們已收到你的預訂資料，請點下方按鈕前往綠界（ECPay）安全付款頁完成訂金支付，完成後專人將於 24 小時內與你確認行程。",
+    payAmountLabel: "請支付訂金金額",
+    payInstructions:
+      "進入綠界付款頁後，請在金額欄輸入上方訂金金額，並於備註欄填寫你的訂單編號，方便我們快速核帳。",
+    goPayBtn: "前往綠界安全付款",
+    afterPayNote:
+      "付款完成後不需回報——我們會主動核帳並透過你留下的聯絡方式與你確認。若 24 小時內未收到回覆，歡迎加 LINE 詢問。",
     customLead: "找不到想要的路線？",
     customLink: "告訴我們你的需求，免費客製行程 →"
   },
@@ -871,6 +880,15 @@ const en: typeof zh = {
     paidCopy:
       "We've received your deposit. Our team will contact you within 24 hours to confirm trip details, and you'll receive driver and vehicle info the day before departure.",
     paidOrderLabel: "Order No.",
+    orderCreatedTitle: "Order Created! Final Step: Pay Your Deposit",
+    orderCreatedCopy:
+      "We've received your booking details. Tap the button below to complete your deposit on ECPay's secure payment page. Our team will confirm your trip within 24 hours after payment.",
+    payAmountLabel: "Deposit Amount to Pay",
+    payInstructions:
+      "On the ECPay page, enter the deposit amount shown above and put your order number in the notes field so we can match your payment quickly.",
+    goPayBtn: "Pay Securely via ECPay",
+    afterPayNote:
+      "No need to report back after paying — we'll verify the payment and contact you directly. If you don't hear from us within 24 hours, reach us on LINE.",
     customLead: "Can't find the route you want?",
     customLink: "Tell us your needs for a free custom itinerary →"
   },
