@@ -121,13 +121,34 @@ export function PlanningCTASection() {
 
     setIsSubmitting(true);
 
+    const message = [
+      `想去哪裡玩：${formData.destination}`,
+      `旅遊日期：${formData.travelDate}`,
+      `旅遊人數：${formData.travelers}`,
+      `旅遊目的：${formData.purpose || "未填寫"}`,
+      `美食偏好：${formData.food || "未填寫"}`,
+      `住宿偏好：${formData.accommodation || "未填寫"}`,
+      `每日預算：${formData.budget || "未填寫"}`,
+      `語言偏好：${
+        formData.languages.length ? formData.languages.join(", ") : "未填寫"
+      }`,
+      `聯絡方式：${formData.contact}`
+    ].join("\n");
+
     try {
-      const response = await fetch("/api/travel-request", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Accept: "application/json"
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          access_key: "73cec211-5017-4fc4-a381-0e26462302da",
+          subject: `FreeGO 新旅遊需求：${formData.destination}（${formData.travelDate}）`,
+          from_name: "FreeGO 網站表單",
+          botcheck: false,
+          message
+        })
       });
       const result = (await response.json()) as TravelRequestResponse;
 
