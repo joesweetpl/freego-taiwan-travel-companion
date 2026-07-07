@@ -2,6 +2,7 @@ import { AudienceSection } from "@/components/AudienceSection";
 import { BookingSection } from "@/components/BookingSection";
 import { FAQSection } from "@/components/FAQSection";
 import { FleetSection } from "@/components/FleetSection";
+import { FoodSpotsSection } from "@/components/FoodSpotsSection";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
@@ -21,6 +22,7 @@ export default function Home() {
         <HeroSection />
         <PremiumTrustSection />
         <BookingSection />
+        <FoodSpotsSection />
         <PainPointSection />
         <SolutionSection />
         <TravelCompanionSection />

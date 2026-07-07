@@ -123,6 +123,20 @@ function RouteScenicImage({
   );
 }
 
+const customBase: TourPackage = {
+  id: "custom",
+  region: "island",
+  days: 1,
+  hoursPerDay: 8,
+  emoji: "👑",
+  titleZh: "客製化尊榮行程",
+  titleEn: "Tailor-Made Premium Journey",
+  highlightsZh: [],
+  highlightsEn: [],
+  descZh: "",
+  descEn: ""
+};
+
 export function BookingSection() {
   const { lang, t } = useLang();
   const b = t.booking;
@@ -135,6 +149,11 @@ export function BookingSection() {
   const [pickup, setPickup] = useState("");
   const [vehicleId, setVehicleId] = useState<VehicleId | "">("");
   const [itineraryId, setItineraryId] = useState("");
+  const [isCustom, setIsCustom] = useState(false);
+  const [customDest, setCustomDest] = useState("");
+  const [customPurpose, setCustomPurpose] = useState("");
+  const [customFood, setCustomFood] = useState("");
+  const [customAccommodation, setCustomAccommodation] = useState("");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [notes, setNotes] = useState("");
@@ -201,6 +220,7 @@ export function BookingSection() {
 
   function choosePackage(next: TourPackage) {
     setPkg(next);
+    setIsCustom(false);
     setVehicleId("");
     setItineraryId(itineraries[next.id]?.[0]?.id || "");
     setErrors({});
@@ -210,8 +230,21 @@ export function BookingSection() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function startCustom() {
+    setPkg({ ...customBase });
+    setIsCustom(true);
+    setVehicleId("");
+    setItineraryId("");
+    setErrors({});
+    setStep(2);
+    document
+      .getElementById("book")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function validateStep2() {
     const next: Record<string, string> = {};
+    if (isCustom && !customDest.trim()) next.customDest = b.errors.customDest;
     if (!date) next.date = b.errors.date;
     if (!pickup.trim()) next.pickup = b.errors.pickup;
     if (!vehicleId) next.vehicle = b.errors.vehicle;
@@ -257,7 +290,13 @@ export function BookingSection() {
     const orderMessage = [
       `訂單編號：${orderNo}`,
       `行程：${pkg.titleZh}`,
-      `行程版本：${chosenItinerary?.nameZh || "未選"}`,
+      isCustom ? `【客製需求】${customDest}` : "",
+      isCustom && customPurpose ? `旅遊目的：${customPurpose}` : "",
+      isCustom && customFood ? `美食偏好：${customFood}` : "",
+      isCustom && customAccommodation
+        ? `住宿偏好：${customAccommodation}`
+        : "",
+      isCustom ? "" : `行程版本：${chosenItinerary?.nameZh || "未選"}`,
       chosenItinerary
         ? `行程內容：\n  ${chosenItinerary.stopsZh.join("\n  ")}`
         : "",
@@ -373,6 +412,29 @@ export function BookingSection() {
         {/* Step 1: 選行程 */}
         {step === 1 ? (
           <div className="mt-10">
+            {/* 客製化尊榮行程入口 */}
+            <div className="mb-8 overflow-hidden rounded-freego border border-freego-orange/40 bg-gradient-to-br from-freego-ink via-freego-teal to-[#1a6b6b] p-6 text-white shadow-soft md:p-8">
+              <div className="flex flex-col items-start justify-between gap-5 md:flex-row md:items-center">
+                <div>
+                  <span className="rounded-full bg-freego-orange px-3 py-1 text-xs font-black text-freego-ink">
+                    👑 {b.customCardTag}
+                  </span>
+                  <h3 className="mt-3 text-2xl font-black">
+                    {b.customCardTitle}
+                  </h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/78">
+                    {b.customCardDesc}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={startCustom}
+                  className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-freego bg-freego-orange px-6 font-black text-freego-ink shadow-[0_12px_28px_rgba(242,140,56,0.3)] transition hover:-translate-y-0.5 hover:bg-[#e77b24]"
+                >
+                  {b.customCardBtn} ✨
+                </button>
+              </div>
+            </div>
             <div className="flex flex-wrap justify-center gap-2">
               {(["all", "north", "central", "south", "east", "island"] as const).map(
                 (value) => (
@@ -471,9 +533,11 @@ export function BookingSection() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-bold text-freego-orange">
-                  {lang === "zh"
-                    ? regionsMeta[pkg.region].zh
-                    : regionsMeta[pkg.region].en}
+                  {isCustom
+                    ? b.customCardTag
+                    : lang === "zh"
+                      ? regionsMeta[pkg.region].zh
+                      : regionsMeta[pkg.region].en}
                   ・{pkg.days}
                   {b.daysUnit}・{b.hoursNote}
                 </p>
@@ -489,6 +553,109 @@ export function BookingSection() {
                 {b.backBtn}
               </button>
             </div>
+
+            {/* 客製化需求 */}
+            {isCustom ? (
+              <div className="mt-6 rounded-freego border border-freego-orange/40 bg-freego-ivory p-5 md:p-6">
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-freego-teal">
+                    👑 {b.customDestLabel}
+                  </span>
+                  <textarea
+                    value={customDest}
+                    onChange={(event) => setCustomDest(event.target.value)}
+                    placeholder={b.customDestPlaceholder}
+                    rows={3}
+                    className="w-full rounded-freego border border-freego-gray bg-white px-4 py-3 text-base outline-none transition focus:border-freego-teal focus:ring-4 focus:ring-freego-teal/10"
+                  />
+                  {errors.customDest ? (
+                    <span className="text-sm font-bold text-freego-orange">
+                      {errors.customDest}
+                    </span>
+                  ) : null}
+                </label>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-2">
+                    <span className="text-sm font-bold text-freego-teal">
+                      📅 {b.customDaysLabel}
+                    </span>
+                    <select
+                      value={pkg.days}
+                      onChange={(event) => {
+                        const nextDays = Number(event.target.value);
+                        setPkg((current) =>
+                          current ? { ...current, days: nextDays } : current
+                        );
+                      }}
+                      className={inputClass}
+                    >
+                      {Array.from({ length: 8 }, (_, index) => index + 1).map(
+                        (n) => (
+                          <option key={n} value={n}>
+                            {n} {b.daysUnit}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-sm font-bold text-freego-teal">
+                      🎯 {t.plan.fields.purpose}
+                    </span>
+                    <select
+                      value={customPurpose}
+                      onChange={(event) =>
+                        setCustomPurpose(event.target.value)
+                      }
+                      className={inputClass}
+                    >
+                      <option value="">
+                        {t.plan.fields.purposePlaceholder}
+                      </option>
+                      {t.plan.fields.purposeOptions.map((option) => (
+                        <option key={option}>{option}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <p className="mt-4 text-xs font-bold text-freego-ink/50">
+                  {b.customPrefsTitle}
+                </p>
+                <div className="mt-2 grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-2">
+                    <span className="text-sm font-bold text-freego-teal">
+                      🍜 {t.plan.fields.food}
+                    </span>
+                    <input
+                      type="text"
+                      value={customFood}
+                      onChange={(event) => setCustomFood(event.target.value)}
+                      placeholder={t.plan.fields.foodPlaceholder}
+                      className={inputClass}
+                    />
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-sm font-bold text-freego-teal">
+                      🏨 {t.plan.fields.accommodation}
+                    </span>
+                    <select
+                      value={customAccommodation}
+                      onChange={(event) =>
+                        setCustomAccommodation(event.target.value)
+                      }
+                      className={inputClass}
+                    >
+                      <option value="">
+                        {t.plan.fields.accommodationPlaceholder}
+                      </option>
+                      {t.plan.fields.accommodationOptions.map((option) => (
+                        <option key={option}>{option}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+            ) : null}
 
             {/* 建議行程二選一 */}
             {itineraries[pkg.id] ? (
@@ -862,7 +1029,15 @@ export function BookingSection() {
                   {b.daysUnit}
                   {extraHours ? `・+${extraHours}h/day` : ""}
                 </p>
-                {itineraries[pkg.id] ? (
+                {isCustom && customDest ? (
+                  <p className="flex gap-2">
+                    👑
+                    <span>
+                      {b.customSummaryLabel}：{customDest}
+                    </span>
+                  </p>
+                ) : null}
+                {!isCustom && itineraries[pkg.id] ? (
                   <p className="flex items-center gap-2">
                     🗺️ {b.itinLabel}：
                     {(() => {

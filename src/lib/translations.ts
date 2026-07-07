@@ -5,8 +5,8 @@ const zh = {
   nav: {
     items: [
       ["線上訂車", "#book"],
+      ["美食快報", "#food"],
       ["關於 FreeGO", "#about"],
-      ["旅遊陪伴者", "#companion"],
       ["尊爵車隊", "#fleet"],
       ["旅客見證", "#reviews"],
       ["常見問題", "#faq"]
@@ -382,6 +382,17 @@ const zh = {
     contactPlaceholder: "例如：LINE: joetravel 或 +886 912 345 678",
     notesLabel: "特殊需求（選填）",
     notesPlaceholder: "例如：想加停某景點、長輩行動較慢、素食需求...",
+    customCardTag: "PREMIUM 尊榮客製",
+    customCardTitle: "客製化尊榮行程",
+    customCardDesc:
+      "不想照範本走？告訴我們你想去哪、怎麼玩，專屬旅遊規劃師與司機為你量身打造。天數、車型自由選，一樣即時報價、線上下訂。",
+    customCardBtn: "開始客製我的行程",
+    customDestLabel: "想去哪裡玩？想怎麼玩？",
+    customDestPlaceholder:
+      "例如：台北出發往宜蘭、花蓮，想以咖啡廳與老街為主，帶長輩喜歡慢步調，最後一天想泡溫泉...",
+    customDaysLabel: "行程天數",
+    customPrefsTitle: "旅遊偏好（讓規劃師更懂你，皆選填）",
+    customSummaryLabel: "客製需求",
     itinTitle: "建議行程（選一個版本）",
     itinSubtitle:
       "路線整理自人氣旅遊部落客攻略與在地司機推薦，時間僅供參考，出發後皆可彈性調整。",
@@ -412,7 +423,8 @@ const zh = {
       pickup: "請填寫上車地點。",
       vehicle: "請選擇車型。",
       name: "請留下聯絡姓名。",
-      contact: "請留下聯絡方式。"
+      contact: "請留下聯絡方式。",
+      customDest: "請告訴我們你想去哪裡玩。"
     },
     payError: "建立付款時發生問題，請稍後再試或透過 LINE 聯絡我們。",
     terms:
@@ -434,6 +446,16 @@ const zh = {
       "付款完成後不需回報——我們會主動核帳並透過你留下的聯絡方式與你確認。若 24 小時內未收到回覆，歡迎加 LINE 詢問。",
     customLead: "找不到想要的路線？",
     customLink: "告訴我們你的需求，免費客製行程 →"
+  },
+  food: {
+    eyebrow: "Weekly Hot Picks",
+    title: "本週網路爆紅名店",
+    description:
+      "每週從 IG 與小紅書追蹤全台正在爆紅的美食與咖啡廳，各地精選三間。想順路踩點？包車行程跟司機說一聲就好。",
+    updatedLabel: "更新日期",
+    igBtn: "IG 看介紹",
+    xhsBtn: "小紅書筆記",
+    addToTrip: "想吃這間？加進你的包車行程 →"
   },
   footer: {
     slogan: "Travel Freely. Never Travel Alone.",
@@ -457,8 +479,8 @@ const en: typeof zh = {
   nav: {
     items: [
       ["Book Online", "#book"],
+      ["Hot Eats", "#food"],
       ["About", "#about"],
-      ["Companions", "#companion"],
       ["Premium Fleet", "#fleet"],
       ["Reviews", "#reviews"],
       ["FAQ", "#faq"]
@@ -845,6 +867,17 @@ const en: typeof zh = {
     notesLabel: "Special Requests (optional)",
     notesPlaceholder:
       "e.g. add a specific stop, slower pace for seniors, vegetarian meals...",
+    customCardTag: "PREMIUM Tailor-Made",
+    customCardTitle: "Tailor-Made Premium Journey",
+    customCardDesc:
+      "Don't want a template? Tell us where you want to go and how you like to travel — a dedicated trip designer and driver will craft it for you. Choose your own days and vehicle, with the same instant quote and online booking.",
+    customCardBtn: "Start Customizing My Trip",
+    customDestLabel: "Where do you want to go? How do you like to travel?",
+    customDestPlaceholder:
+      "e.g. From Taipei toward Yilan and Hualien, focused on cafés and old streets, slower pace for seniors, hot spring on the last day...",
+    customDaysLabel: "Trip Length (days)",
+    customPrefsTitle: "Travel Preferences (optional, helps us know you)",
+    customSummaryLabel: "Custom Request",
     itinTitle: "Suggested Itineraries (pick one)",
     itinSubtitle:
       "Curated from top travel bloggers and our local drivers. Times are indicative — everything stays flexible on the road.",
@@ -876,7 +909,8 @@ const en: typeof zh = {
       pickup: "Please enter a pickup location.",
       vehicle: "Please choose a vehicle.",
       name: "Please leave your name.",
-      contact: "Please leave a contact method."
+      contact: "Please leave a contact method.",
+      customDest: "Please tell us where you want to go."
     },
     payError:
       "Something went wrong creating the payment. Please try again or contact us on LINE.",
@@ -899,6 +933,16 @@ const en: typeof zh = {
       "No need to report back after paying — we'll verify the payment and contact you directly. If you don't hear from us within 24 hours, reach us on LINE.",
     customLead: "Can't find the route you want?",
     customLink: "Tell us your needs for a free custom itinerary →"
+  },
+  food: {
+    eyebrow: "Weekly Hot Picks",
+    title: "This Week's Viral Eats",
+    description:
+      "Every week we track the food spots and cafés going viral on Instagram and Xiaohongshu across Taiwan — three picks per region. Want to stop by? Just tell your driver.",
+    updatedLabel: "Updated",
+    igBtn: "See on IG",
+    xhsBtn: "Xiaohongshu",
+    addToTrip: "Craving this? Add it to your charter trip →"
   },
   footer: {
     slogan: "Travel Freely. Never Travel Alone.",
