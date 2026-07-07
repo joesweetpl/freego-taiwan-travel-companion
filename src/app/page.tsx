@@ -1,4 +1,5 @@
 import { AudienceSection } from "@/components/AudienceSection";
+import { BookingSection } from "@/components/BookingSection";
 import { FAQSection } from "@/components/FAQSection";
 import { FleetSection } from "@/components/FleetSection";
 import { Footer } from "@/components/Footer";
@@ -17,6 +18,7 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
+        <BookingSection />
         <PainPointSection />
         <SolutionSection />
         <TravelCompanionSection />

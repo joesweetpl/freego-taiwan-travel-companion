@@ -4,12 +4,12 @@ export const WHATSAPP_URL = "https://wa.me/886908688222";
 const zh = {
   nav: {
     items: [
+      ["線上訂車", "#book"],
       ["關於 FreeGO", "#about"],
       ["旅遊陪伴者", "#companion"],
       ["尊爵車隊", "#fleet"],
       ["旅客見證", "#reviews"],
-      ["常見問題", "#faq"],
-      ["聯絡我們", "#contact"]
+      ["常見問題", "#faq"]
     ] as Array<[string, string]>,
     cta: "開始規劃行程",
     ctaMobile: "開始規劃我的台灣旅行"
@@ -337,6 +337,69 @@ const zh = {
     successBack: "返回首頁",
     note: "不用先準備完整行程。只要先告訴我們你的想法，剩下的 FreeGO 陪你一起整理。"
   },
+  booking: {
+    eyebrow: "Book Online",
+    title: "選好行程、即時報價，線上下訂直接出發。",
+    description:
+      "從全台熱門路線挑一條，選日期與車型，系統立刻算出總價與訂金，線上付 30% 訂金即完成預訂。全程不需等客服回覆——當然，想客製行程也隨時找得到我們。",
+    steps: ["選行程", "日期與車型", "確認付款"],
+    regionAll: "全部路線",
+    popularTag: "熱門",
+    daysUnit: "日遊",
+    hoursNote: "每日 8 小時",
+    fromPrefix: "每車",
+    fromSuffix: "起",
+    selectBtn: "選擇此行程",
+    highlightsLabel: "行程亮點",
+    dateLabel: "出發日期",
+    paxLabel: "乘客人數",
+    paxUnit: "位",
+    pickupLabel: "上車地點",
+    pickupPlaceholder: "例如：台北君悅酒店、桃園機場 T2",
+    vehicleLabel: "選擇車型",
+    maxPaxFmt: "最多 %s 位乘客",
+    luggageFmt: "28 吋行李 %s 件",
+    overtimeFmt: "超時 NT$%s /小時",
+    perDay: "/ 8小時",
+    tooSmall: "人數超過此車型上限",
+    quoteTitle: "即時報價",
+    lineCar: "車資",
+    lineCarFmt: "%s × %s 日",
+    lineLodging: "司機外宿服務費",
+    lodgingFmt: "%s 晚",
+    totalLabel: "行程總價",
+    depositLabel: "線上訂金（30%）",
+    balanceLabel: "尾款（行程當日支付）",
+    nameLabel: "聯絡姓名",
+    namePlaceholder: "怎麼稱呼你？",
+    contactLabel: "聯絡方式（LINE ID / WhatsApp / 電話）",
+    contactPlaceholder: "例如：LINE: joetravel 或 +886 912 345 678",
+    notesLabel: "特殊需求（選填）",
+    notesPlaceholder: "例如：兒童安全座椅 1 張、需英文司機、想加停某景點...",
+    backBtn: "← 上一步",
+    nextBtn1: "下一步：選日期與車型",
+    nextBtn2: "下一步：確認報價與付款",
+    payBtn: "前往安全付款・訂金",
+    payingBtn: "正在建立訂單...",
+    errors: {
+      date: "請選擇出發日期。",
+      pickup: "請填寫上車地點。",
+      vehicle: "請選擇車型。",
+      name: "請留下聯絡姓名。",
+      contact: "請留下聯絡方式。"
+    },
+    payError: "建立付款時發生問題，請稍後再試或透過 LINE 聯絡我們。",
+    terms:
+      "付款由綠界 ECPay 安全處理，支援信用卡等多種方式。訂金付款完成即為你保留車輛與司機檔期；出發前 14 天以上取消可全額退還訂金。",
+    testNote:
+      "🔧 目前為金流測試模式，付款不會實際扣款。正式金鑰啟用後即開始真實收款。",
+    paidTitle: "付款完成，預訂成功！",
+    paidCopy:
+      "我們已收到你的訂金，訂單編號如下。專人將於 24 小時內透過你留下的聯絡方式與你確認行程細節，出發前一天會提供司機與車輛資訊。",
+    paidOrderLabel: "訂單編號",
+    customLead: "找不到想要的路線？",
+    customLink: "告訴我們你的需求，免費客製行程 →"
+  },
   footer: {
     slogan: "Travel Freely. Never Travel Alone.",
     sloganSub: "自由旅行，但不再孤單。",
@@ -358,12 +421,12 @@ const zh = {
 const en: typeof zh = {
   nav: {
     items: [
+      ["Book Online", "#book"],
       ["About", "#about"],
       ["Companions", "#companion"],
       ["Premium Fleet", "#fleet"],
       ["Reviews", "#reviews"],
-      ["FAQ", "#faq"],
-      ["Contact", "#contact"]
+      ["FAQ", "#faq"]
     ],
     cta: "Start Planning",
     ctaMobile: "Start Planning My Taiwan Trip"
@@ -700,6 +763,71 @@ const en: typeof zh = {
     successWhatsapp: "Contact FreeGO on WhatsApp",
     successBack: "Back to Top",
     note: "No fixed itinerary required. Just share your ideas — we’ll help you organize the rest."
+  },
+  booking: {
+    eyebrow: "Book Online",
+    title: "Pick a Route, Get an Instant Quote, Book Online.",
+    description:
+      "Choose from Taiwan's most popular routes, select your date and vehicle, and see the full price instantly. Pay a 30% deposit online to confirm — no waiting for customer service. Prefer a custom trip? We're one message away.",
+    steps: ["Choose Route", "Date & Vehicle", "Confirm & Pay"],
+    regionAll: "All Routes",
+    popularTag: "Popular",
+    daysUnit: "-Day Tour",
+    hoursNote: "8 hours / day",
+    fromPrefix: "From",
+    fromSuffix: "per vehicle",
+    selectBtn: "Select This Route",
+    highlightsLabel: "Highlights",
+    dateLabel: "Departure Date",
+    paxLabel: "Passengers",
+    paxUnit: "pax",
+    pickupLabel: "Pickup Location",
+    pickupPlaceholder: "e.g. Grand Hyatt Taipei, Taoyuan Airport T2",
+    vehicleLabel: "Choose Vehicle",
+    maxPaxFmt: "Up to %s passengers",
+    luggageFmt: "%s large suitcases",
+    overtimeFmt: "Overtime NT$%s /hr",
+    perDay: "/ 8 hrs",
+    tooSmall: "Group exceeds this vehicle",
+    quoteTitle: "Instant Quote",
+    lineCar: "Vehicle & driver",
+    lineCarFmt: "%s × %s day(s)",
+    lineLodging: "Driver lodging fee",
+    lodgingFmt: "%s night(s)",
+    totalLabel: "Trip Total",
+    depositLabel: "Online Deposit (30%)",
+    balanceLabel: "Balance (pay on trip day)",
+    nameLabel: "Contact Name",
+    namePlaceholder: "What should we call you?",
+    contactLabel: "Contact (LINE ID / WhatsApp / Phone)",
+    contactPlaceholder: "e.g. LINE: joetravel or +886 912 345 678",
+    notesLabel: "Special Requests (optional)",
+    notesPlaceholder:
+      "e.g. 1 child seat, English-speaking driver, add a specific stop...",
+    backBtn: "← Back",
+    nextBtn1: "Next: Date & Vehicle",
+    nextBtn2: "Next: Review Quote & Pay",
+    payBtn: "Pay Deposit Securely",
+    payingBtn: "Creating your order...",
+    errors: {
+      date: "Please select a departure date.",
+      pickup: "Please enter a pickup location.",
+      vehicle: "Please choose a vehicle.",
+      name: "Please leave your name.",
+      contact: "Please leave a contact method."
+    },
+    payError:
+      "Something went wrong creating the payment. Please try again or contact us on LINE.",
+    terms:
+      "Payments are securely processed by ECPay (credit cards supported). Your deposit reserves the vehicle and driver; cancel 14+ days before departure for a full refund.",
+    testNote:
+      "🔧 Payment is currently in TEST mode — no real charge will be made. Live payments start once production keys are activated.",
+    paidTitle: "Payment Complete — Booking Confirmed!",
+    paidCopy:
+      "We've received your deposit. Our team will contact you within 24 hours to confirm trip details, and you'll receive driver and vehicle info the day before departure.",
+    paidOrderLabel: "Order No.",
+    customLead: "Can't find the route you want?",
+    customLink: "Tell us your needs for a free custom itinerary →"
   },
   footer: {
     slogan: "Travel Freely. Never Travel Alone.",

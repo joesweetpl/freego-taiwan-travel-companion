@@ -48,7 +48,7 @@ export function HeroSection() {
             {hero.description}
           </p>
           <div className="mt-10 flex flex-col gap-3 pb-2 sm:flex-row sm:flex-wrap">
-            <Button href="#plan">{hero.ctaPrimary}</Button>
+            <Button href="#book">{hero.ctaPrimary}</Button>
             <Button href="#companion" variant="secondary">
               {hero.ctaSecondary}
             </Button>

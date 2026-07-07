@@ -42,7 +42,7 @@ export function Header() {
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
           {langToggle}
-          <Button href="#plan" className="min-h-11 px-4 py-2">
+          <Button href="#book" className="min-h-11 px-4 py-2">
             {t.nav.cta}
           </Button>
         </div>
@@ -72,7 +72,7 @@ export function Header() {
               </a>
             ))}
           </nav>
-          <Button href="#plan" full>
+          <Button href="#book" full>
             {t.nav.ctaMobile}
           </Button>
         </div>
