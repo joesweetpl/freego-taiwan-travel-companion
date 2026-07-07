@@ -24,6 +24,14 @@ import {
   type TourPackage,
   type VehicleId
 } from "@/lib/catalog";
+import {
+  attractions,
+  counties,
+  estimateTrip,
+  playStyles,
+  zonesMeta,
+  type ZoneId
+} from "@/lib/attractions";
 import { itineraries } from "@/lib/itineraries";
 import { useLang } from "@/lib/i18n";
 
@@ -150,7 +158,8 @@ export function BookingSection() {
   const [vehicleId, setVehicleId] = useState<VehicleId | "">("");
   const [itineraryId, setItineraryId] = useState("");
   const [isCustom, setIsCustom] = useState(false);
-  const [customDest, setCustomDest] = useState("");
+  const [selectedSpots, setSelectedSpots] = useState<string[]>([]);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [customPurpose, setCustomPurpose] = useState("");
   const [customFood, setCustomFood] = useState("");
   const [customAccommodation, setCustomAccommodation] = useState("");
@@ -208,6 +217,41 @@ export function BookingSection() {
 
   const selectedVehicle = vehicles.find((v) => v.id === vehicleId) || null;
 
+  const tripEstimate = useMemo(
+    () => (isCustom ? estimateTrip(selectedSpots) : null),
+    [isCustom, selectedSpots]
+  );
+
+  // AI 建議天數自動帶入（客製模式）
+  useEffect(() => {
+    if (isCustom && tripEstimate) {
+      setPkg((current) =>
+        current ? { ...current, days: tripEstimate.days } : current
+      );
+    }
+  }, [isCustom, tripEstimate]);
+
+  function toggleSpot(id: string) {
+    setSelectedSpots((current) =>
+      current.includes(id)
+        ? current.filter((value) => value !== id)
+        : [...current, id]
+    );
+    setErrors((current) => {
+      const next = { ...current };
+      delete next.customDest;
+      return next;
+    });
+  }
+
+  function toggleStyle(id: string) {
+    setSelectedStyles((current) =>
+      current.includes(id)
+        ? current.filter((value) => value !== id)
+        : [...current, id]
+    );
+  }
+
   function toggleService(id: ConciergeId) {
     setServices((current) =>
       current.includes(id)
@@ -235,6 +279,8 @@ export function BookingSection() {
     setIsCustom(true);
     setVehicleId("");
     setItineraryId("");
+    setSelectedSpots([]);
+    setSelectedStyles([]);
     setErrors({});
     setStep(2);
     document
@@ -244,7 +290,8 @@ export function BookingSection() {
 
   function validateStep2() {
     const next: Record<string, string> = {};
-    if (isCustom && !customDest.trim()) next.customDest = b.errors.customDest;
+    if (isCustom && selectedSpots.length === 0)
+      next.customDest = b.errors.customDest;
     if (!date) next.date = b.errors.date;
     if (!pickup.trim()) next.pickup = b.errors.pickup;
     if (!vehicleId) next.vehicle = b.errors.vehicle;
@@ -290,7 +337,21 @@ export function BookingSection() {
     const orderMessage = [
       `訂單編號：${orderNo}`,
       `行程：${pkg.titleZh}`,
-      isCustom ? `【客製需求】${customDest}` : "",
+      isCustom
+        ? `【客製景點】${
+            selectedSpots
+              .map((id) => attractions.find((a) => a.id === id)?.zh || id)
+              .join("、") || "未選"
+          }`
+        : "",
+      isCustom && selectedStyles.length
+        ? `【想怎麼玩】${selectedStyles
+            .map((id) => playStyles.find((s) => s.id === id)?.zh || id)
+            .join("、")}`
+        : "",
+      isCustom && tripEstimate
+        ? `【AI 評估】遊玩約 ${tripEstimate.stayHours} 小時＋車程約 ${tripEstimate.travelHours} 小時，建議 ${tripEstimate.days} 天 ${tripEstimate.nights} 夜`
+        : "",
       isCustom && customPurpose ? `旅遊目的：${customPurpose}` : "",
       isCustom && customFood ? `美食偏好：${customFood}` : "",
       isCustom && customAccommodation
@@ -557,23 +618,135 @@ export function BookingSection() {
             {/* 客製化需求 */}
             {isCustom ? (
               <div className="mt-6 rounded-freego border border-freego-orange/40 bg-freego-ivory p-5 md:p-6">
-                <label className="grid gap-2">
-                  <span className="text-sm font-black text-freego-teal">
-                    👑 {b.customDestLabel}
-                  </span>
-                  <textarea
-                    value={customDest}
-                    onChange={(event) => setCustomDest(event.target.value)}
-                    placeholder={b.customDestPlaceholder}
-                    rows={3}
-                    className="w-full rounded-freego border border-freego-gray bg-white px-4 py-3 text-base outline-none transition focus:border-freego-teal focus:ring-4 focus:ring-freego-teal/10"
-                  />
-                  {errors.customDest ? (
-                    <span className="text-sm font-bold text-freego-orange">
-                      {errors.customDest}
+                {/* 想去哪裡玩：分區複選 */}
+                <p className="text-sm font-black text-freego-teal">
+                  📍 {b.customPlacesLabel}
+                </p>
+                {errors.customDest ? (
+                  <p className="mt-1 text-sm font-bold text-freego-orange">
+                    {errors.customDest}
+                  </p>
+                ) : null}
+                <details className="group mt-2 rounded-freego border border-freego-gray bg-white">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-bold text-freego-ink/75 [&::-webkit-details-marker]:hidden">
+                    <span>
+                      {selectedSpots.length === 0
+                        ? b.customPlacesEmpty
+                        : fmt(b.customPlacesCount, selectedSpots.length)}
                     </span>
-                  ) : null}
-                </label>
+                    <span className="text-freego-orange transition group-open:rotate-180">
+                      ▼
+                    </span>
+                  </summary>
+                  <div className="max-h-80 overflow-y-auto border-t border-freego-gray px-4 pb-4">
+                    {(["north", "central", "south", "east"] as ZoneId[]).map(
+                      (zone) => (
+                        <div key={zone}>
+                          <p className="sticky top-0 mt-3 bg-white py-1 text-xs font-black tracking-widest text-freego-orange">
+                            ── {lang === "zh" ? zonesMeta[zone].zh : zonesMeta[zone].en}{" "}
+                            ──
+                          </p>
+                          {counties
+                            .filter((county) => county.zone === zone)
+                            .map((county) => {
+                              const spots = attractions.filter(
+                                (a) => a.county === county.id
+                              );
+                              if (spots.length === 0) return null;
+                              return (
+                                <div key={county.id} className="mt-2">
+                                  <p className="text-xs font-bold text-freego-ink/50">
+                                    {lang === "zh" ? county.zh : county.en}
+                                  </p>
+                                  <div className="mt-1.5 flex flex-wrap gap-2">
+                                    {spots.map((spot) => {
+                                      const checked = selectedSpots.includes(
+                                        spot.id
+                                      );
+                                      return (
+                                        <button
+                                          key={spot.id}
+                                          type="button"
+                                          onClick={() => toggleSpot(spot.id)}
+                                          className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                                            checked
+                                              ? "border-freego-teal bg-freego-teal text-white"
+                                              : "border-freego-gray bg-white text-freego-ink/70 hover:border-freego-orange hover:text-freego-orange"
+                                          }`}
+                                        >
+                                          {spot.hot ? "🔥 " : ""}
+                                          {lang === "zh" ? spot.zh : spot.en}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </details>
+
+                {/* 想怎麼玩：玩法複選 */}
+                <p className="mt-4 text-sm font-black text-freego-teal">
+                  🎡 {b.customStylesLabel}
+                </p>
+                <details className="group mt-2 rounded-freego border border-freego-gray bg-white">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-bold text-freego-ink/75 [&::-webkit-details-marker]:hidden">
+                    <span>
+                      {selectedStyles.length === 0
+                        ? b.customStylesEmpty
+                        : fmt(b.customStylesCount, selectedStyles.length)}
+                    </span>
+                    <span className="text-freego-orange transition group-open:rotate-180">
+                      ▼
+                    </span>
+                  </summary>
+                  <div className="flex flex-wrap gap-2 border-t border-freego-gray px-4 py-4">
+                    {playStyles.map((style) => {
+                      const checked = selectedStyles.includes(style.id);
+                      return (
+                        <button
+                          key={style.id}
+                          type="button"
+                          onClick={() => toggleStyle(style.id)}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                            checked
+                              ? "border-freego-teal bg-freego-teal text-white"
+                              : "border-freego-gray bg-white text-freego-ink/70 hover:border-freego-orange hover:text-freego-orange"
+                          }`}
+                        >
+                          {lang === "zh" ? style.zh : style.en}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </details>
+
+                {/* AI 行程評估 */}
+                {tripEstimate ? (
+                  <div className="mt-4 rounded-freego bg-freego-teal p-4 text-white">
+                    <p className="text-sm font-black">🤖 {b.aiTitle}</p>
+                    <p className="mt-1.5 text-sm leading-6 text-white/85">
+                      {fmt(
+                        b.aiResult,
+                        tripEstimate.stayHours,
+                        tripEstimate.travelHours,
+                        tripEstimate.days,
+                        tripEstimate.nights
+                      )}
+                    </p>
+                    <p className="mt-1 text-xs text-white/60">{b.aiApplied}</p>
+                    {pkg.days < tripEstimate.days ? (
+                      <p className="mt-2 rounded-freego bg-freego-orange/20 p-2 text-xs font-bold text-freego-orange">
+                        {b.aiTooShort}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <label className="grid gap-2">
                     <span className="text-sm font-bold text-freego-teal">
@@ -1029,11 +1202,21 @@ export function BookingSection() {
                   {b.daysUnit}
                   {extraHours ? `・+${extraHours}h/day` : ""}
                 </p>
-                {isCustom && customDest ? (
+                {isCustom && selectedSpots.length > 0 ? (
                   <p className="flex gap-2">
                     👑
                     <span>
-                      {b.customSummaryLabel}：{customDest}
+                      {b.customSummaryLabel}：
+                      {selectedSpots
+                        .map((id) => {
+                          const spot = attractions.find((a) => a.id === id);
+                          return spot
+                            ? lang === "zh"
+                              ? spot.zh
+                              : spot.en
+                            : id;
+                        })
+                        .join("、")}
                     </span>
                   </p>
                 ) : null}

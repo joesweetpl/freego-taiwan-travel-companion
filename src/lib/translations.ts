@@ -387,9 +387,16 @@ const zh = {
     customCardDesc:
       "不想照範本走？告訴我們你想去哪、怎麼玩，專屬旅遊規劃師與司機為你量身打造。天數、車型自由選，一樣即時報價、線上下訂。",
     customCardBtn: "開始客製我的行程",
-    customDestLabel: "想去哪裡玩？想怎麼玩？",
-    customDestPlaceholder:
-      "例如：台北出發往宜蘭、花蓮，想以咖啡廳與老街為主，帶長輩喜歡慢步調，最後一天想泡溫泉...",
+    customPlacesLabel: "想去哪裡玩？（可複選）",
+    customPlacesEmpty: "點此選擇想去的景點",
+    customPlacesCount: "已選 %s 個景點",
+    customStylesLabel: "想怎麼玩？（可複選）",
+    customStylesEmpty: "點此選擇玩法",
+    customStylesCount: "已選 %s 種玩法",
+    aiTitle: "AI 行程評估",
+    aiResult: "遊玩約 %s 小時＋車程約 %s 小時，建議 %s 天 %s 夜",
+    aiApplied: "已自動帶入建議天數，你仍可自行調整。",
+    aiTooShort: "⚠️ 目前天數少於 AI 建議，行程會比較趕，建議增加天數。",
     customDaysLabel: "行程天數",
     customPrefsTitle: "旅遊偏好（讓規劃師更懂你，皆選填）",
     customSummaryLabel: "客製需求",
@@ -872,9 +879,18 @@ const en: typeof zh = {
     customCardDesc:
       "Don't want a template? Tell us where you want to go and how you like to travel — a dedicated trip designer and driver will craft it for you. Choose your own days and vehicle, with the same instant quote and online booking.",
     customCardBtn: "Start Customizing My Trip",
-    customDestLabel: "Where do you want to go? How do you like to travel?",
-    customDestPlaceholder:
-      "e.g. From Taipei toward Yilan and Hualien, focused on cafés and old streets, slower pace for seniors, hot spring on the last day...",
+    customPlacesLabel: "Where do you want to go? (multi-select)",
+    customPlacesEmpty: "Tap to choose attractions",
+    customPlacesCount: "%s attraction(s) selected",
+    customStylesLabel: "How do you like to play? (multi-select)",
+    customStylesEmpty: "Tap to choose travel styles",
+    customStylesCount: "%s style(s) selected",
+    aiTitle: "AI Trip Estimate",
+    aiResult:
+      "~%s hrs of sightseeing + ~%s hrs of driving → recommended %s day(s), %s night(s)",
+    aiApplied: "Recommended days applied automatically — adjust anytime.",
+    aiTooShort:
+      "⚠️ Fewer days than the AI recommends — the pace will be rushed. Consider adding days.",
     customDaysLabel: "Trip Length (days)",
     customPrefsTitle: "Travel Preferences (optional, helps us know you)",
     customSummaryLabel: "Custom Request",
