@@ -405,29 +405,64 @@ export const packages: TourPackage[] = [
 
 export const DEPOSIT_RATE = 0.3;
 export const DRIVER_LODGING_PER_NIGHT = 1000; // 多日遊司機外宿津貼
+export const CHILD_SEAT_PER_DAY = 300; // 兒童安全座椅 每張/每日
+
+// 免費代訂服務（專人聯繫報價，不計入車資）
+export const conciergeServices = [
+  { id: "hotel", zh: "住宿酒店代訂", en: "Hotel booking assistance" },
+  { id: "dining", zh: "餐廳訂位代訂", en: "Restaurant reservations" },
+  { id: "tickets", zh: "樂園/景點門票代購", en: "Attraction & park tickets" },
+  { id: "guide", zh: "需要外語司機", en: "Foreign-language driver" }
+] as const;
+
+export type ConciergeId = (typeof conciergeServices)[number]["id"];
+
+export type BookingExtras = {
+  extraDays?: number; // 延長天數
+  extraHoursPerDay?: number; // 每日延長時數
+  childSeats?: number; // 兒童安全座椅數量
+};
 
 export type Quote = {
   dayRate: number;
-  days: number;
+  days: number; // 含延長後的總天數
+  baseDays: number;
   carSubtotal: number;
   lodging: number;
+  overtime: number;
+  childSeat: number;
   total: number;
   deposit: number;
   balance: number;
 };
 
-export function getQuote(pkg: TourPackage, vehicleId: VehicleId): Quote {
+export function getQuote(
+  pkg: TourPackage,
+  vehicleId: VehicleId,
+  extras: BookingExtras = {}
+): Quote {
   const vehicle = vehicles.find((v) => v.id === vehicleId);
   const dayRate = vehicle ? vehicle.dayRate : 0;
-  const carSubtotal = dayRate * pkg.days;
-  const lodging = pkg.days > 1 ? DRIVER_LODGING_PER_NIGHT * (pkg.days - 1) : 0;
-  const total = carSubtotal + lodging;
+  const overtimeRate = vehicle ? vehicle.overtime : 0;
+  const extraDays = extras.extraDays || 0;
+  const extraHours = extras.extraHoursPerDay || 0;
+  const childSeats = extras.childSeats || 0;
+
+  const days = pkg.days + extraDays;
+  const carSubtotal = dayRate * days;
+  const lodging = days > 1 ? DRIVER_LODGING_PER_NIGHT * (days - 1) : 0;
+  const overtime = overtimeRate * extraHours * days;
+  const childSeat = CHILD_SEAT_PER_DAY * childSeats * days;
+  const total = carSubtotal + lodging + overtime + childSeat;
   const deposit = Math.ceil((total * DEPOSIT_RATE) / 100) * 100;
   return {
     dayRate,
-    days: pkg.days,
+    days,
+    baseDays: pkg.days,
     carSubtotal,
     lodging,
+    overtime,
+    childSeat,
     total,
     deposit,
     balance: total - deposit

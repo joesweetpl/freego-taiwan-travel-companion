@@ -8,6 +8,7 @@ import { HeroSection } from "@/components/HeroSection";
 import { HowItWorksSection } from "@/components/HowItWorksSection";
 import { PainPointSection } from "@/components/PainPointSection";
 import { PlanningCTASection } from "@/components/PlanningCTASection";
+import { PremiumTrustSection } from "@/components/PremiumTrustSection";
 import { SolutionSection } from "@/components/SolutionSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { TravelCompanionSection } from "@/components/TravelCompanionSection";
@@ -18,6 +19,7 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
+        <PremiumTrustSection />
         <BookingSection />
         <PainPointSection />
         <SolutionSection />

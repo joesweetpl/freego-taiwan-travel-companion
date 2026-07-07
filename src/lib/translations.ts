@@ -36,7 +36,13 @@ const zh = {
       ["中·英·日·韓", "多語言服務"]
     ] as Array<[string, string]>,
     photoBadgeTitle: "Local Friend Moment",
-    photoBadgeCopy: "和懂台灣的朋友一起旅行，每一天都剛剛好。"
+    photoBadgeCopy: "和懂台灣的朋友一起旅行，每一天都剛剛好。",
+    photoIntro:
+      "不是只有把你送到景點，而是陪你理解台灣的故事、食物、節奏與旅行選擇。",
+    trustSectionEyebrow: "FreeGO Professional Standard",
+    trustSectionTitle: "真正五星的台灣旅遊陪伴服務。",
+    trustSectionCopy:
+      "FreeGO 不是一般接送服務，而是把行程理解、在地建議、語言協助與舒適交通整合成一套更細緻的旅遊陪伴標準。"
   },
   pain: {
     eyebrow: "The Real Travel Problem",
@@ -375,7 +381,23 @@ const zh = {
     contactLabel: "聯絡方式（LINE ID / WhatsApp / 電話）",
     contactPlaceholder: "例如：LINE: joetravel 或 +886 912 345 678",
     notesLabel: "特殊需求（選填）",
-    notesPlaceholder: "例如：兒童安全座椅 1 張、需英文司機、想加停某景點...",
+    notesPlaceholder: "例如：想加停某景點、長輩行動較慢、素食需求...",
+    addonsTitle: "加購與客製",
+    addonsSubtitle: "依需求加購，價格即時更新",
+    extraDaysLabel: "延長天數",
+    extraDaysUnit: "天",
+    extraDaysNone: "不延長",
+    extraDaysFmt: "+%s 天（每天 %s）",
+    extraHoursLabel: "每日延長時數",
+    extraHoursNone: "不延長",
+    extraHoursFmt: "+%s 小時／日（每小時 %s）",
+    childSeatLabel: "兒童安全座椅",
+    childSeatNone: "不需要",
+    childSeatFmt: "%s 張（每張每日 NT$300）",
+    conciergeLabel: "免費禮賓代訂服務（專人聯繫確認，不收服務費）",
+    lineOvertime: "延長時數",
+    lineChildSeat: "兒童安全座椅",
+    conciergeNote: "已勾選的代訂服務將由專人與你聯繫確認，費用另計。",
     backBtn: "← 上一步",
     nextBtn1: "下一步：選日期與車型",
     nextBtn2: "下一步：確認報價與付款",
@@ -454,7 +476,13 @@ const en: typeof zh = {
     ],
     photoBadgeTitle: "Local Friend Moment",
     photoBadgeCopy:
-      "Explore Taiwan with someone who notices what makes the day feel right."
+      "Explore Taiwan with someone who notices what makes the day feel right.",
+    photoIntro:
+      "More than getting you to the next stop, FreeGO helps you understand Taiwan through stories, food, pace, and better travel choices.",
+    trustSectionEyebrow: "FreeGO Professional Standard",
+    trustSectionTitle: "A true five-star Taiwan Travel Companion experience.",
+    trustSectionCopy:
+      "FreeGO is more than private transportation. We combine itinerary understanding, local recommendations, language support, and comfortable travel into a premium companion standard."
   },
   pain: {
     eyebrow: "The Real Travel Problem",
@@ -803,7 +831,24 @@ const en: typeof zh = {
     contactPlaceholder: "e.g. LINE: joetravel or +886 912 345 678",
     notesLabel: "Special Requests (optional)",
     notesPlaceholder:
-      "e.g. 1 child seat, English-speaking driver, add a specific stop...",
+      "e.g. add a specific stop, slower pace for seniors, vegetarian meals...",
+    addonsTitle: "Add-ons & Customization",
+    addonsSubtitle: "Prices update instantly as you add",
+    extraDaysLabel: "Extend Days",
+    extraDaysUnit: "day(s)",
+    extraDaysNone: "No extension",
+    extraDaysFmt: "+%s day(s) (%s per day)",
+    extraHoursLabel: "Extra Hours per Day",
+    extraHoursNone: "No extension",
+    extraHoursFmt: "+%s hr/day (%s per hour)",
+    childSeatLabel: "Child Safety Seat",
+    childSeatNone: "Not needed",
+    childSeatFmt: "%s seat(s) (NT$300 per seat per day)",
+    conciergeLabel: "Free Concierge Services (our team will contact you — no service fee)",
+    lineOvertime: "Extra hours",
+    lineChildSeat: "Child seats",
+    conciergeNote:
+      "Selected concierge services will be confirmed by our team; costs are quoted separately.",
     backBtn: "← Back",
     nextBtn1: "Next: Date & Vehicle",
     nextBtn2: "Next: Review Quote & Pay",

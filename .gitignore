@@ -1,5 +1,6 @@
 node_modules/
 .next/
 .DS_Store
-pnpm-workspace.yaml
 *.log
+.vercel
+.env*

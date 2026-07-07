@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
+  conciergeServices,
   formatNTD,
   getQuote,
   makeOrderNo,
   packages,
   regionsMeta,
   vehicles,
+  type ConciergeId,
   type Region,
   type TourPackage,
   type VehicleId
@@ -34,13 +36,86 @@ function fmt(template: string, ...values: Array<string | number>): string {
   return result;
 }
 
-const regionGradients: Record<Region, string> = {
-  north: "from-freego-teal to-[#1a6b6b]",
-  central: "from-[#3d6b35] to-[#5a8a4a]",
-  south: "from-[#b3541e] to-freego-orange",
-  east: "from-[#1e5a8a] to-[#3a7ab5]",
-  island: "from-freego-ink to-freego-teal"
+type RouteVisual = {
+  image: string;
 };
+
+const routeVisuals: Record<string, RouteVisual> = {
+  "yehliu-jiufen-shifen": {
+    image: "/route-images/yehliu-jiufen-shifen.png"
+  },
+  "taipei-city-classic": {
+    image: "/route-images/taipei-city-classic.png"
+  },
+  "yangmingshan-beitou": {
+    image: "/route-images/yangmingshan-beitou.png"
+  },
+  "north-coast": {
+    image: "/route-images/north-coast.png"
+  },
+  "yilan-day": {
+    image: "/route-images/yilan-day.png"
+  },
+  "sun-moon-lake": {
+    image: "/route-images/sun-moon-lake.png"
+  },
+  "cingjing-hehuan-2d": {
+    image: "/route-images/cingjing-hehuan-2d.png"
+  },
+  "alishan-2d": {
+    image: "/route-images/alishan-2d.png"
+  },
+  "tainan-heritage": {
+    image: "/route-images/tainan-heritage.png"
+  },
+  "kenting-3d": {
+    image: "/route-images/kenting-3d.png"
+  },
+  "taroko-hualien": {
+    image: "/route-images/taroko-hualien.png"
+  },
+  "east-valley-3d": {
+    image: "/route-images/east-valley-3d.png"
+  },
+  "round-island-5d": {
+    image: "/route-images/round-island-5d.png"
+  }
+};
+
+function RouteScenicImage({
+  item,
+  lang,
+  daysUnit,
+  popularTag
+}: {
+  item: TourPackage;
+  lang: "zh" | "en";
+  daysUnit: string;
+  popularTag: string;
+}) {
+  const visual = routeVisuals[item.id];
+
+  return (
+    <div className="relative h-44 overflow-hidden bg-freego-teal text-white">
+      <img
+        src={visual?.image}
+        alt={lang === "zh" ? item.titleZh : item.titleEn}
+        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-freego-ink/58 via-freego-ink/12 to-freego-ink/8" />
+      <span className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1 text-xs font-black text-freego-teal">
+        {lang === "zh" ? regionsMeta[item.region].zh : regionsMeta[item.region].en}
+        ・{item.days}
+        {daysUnit}
+      </span>
+      {item.popular ? (
+        <span className="absolute right-4 top-4 rounded-full bg-freego-orange px-3 py-1 text-xs font-black text-freego-ink">
+          {popularTag}
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 export function BookingSection() {
   const { lang, t } = useLang();
@@ -56,6 +131,10 @@ export function BookingSection() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [notes, setNotes] = useState("");
+  const [extraDays, setExtraDays] = useState(0);
+  const [extraHours, setExtraHours] = useState(0);
+  const [childSeats, setChildSeats] = useState(0);
+  const [services, setServices] = useState<ConciergeId[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState("");
@@ -67,6 +146,15 @@ export function BookingSection() {
       setPaidOrder(params.get("order") || "");
       window.history.replaceState({}, "", `${window.location.pathname}#book`);
     }
+
+    // 從綠界頁面按「上一頁」回來時（bfcache），重置付款按鈕狀態
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setPaying(false);
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
   }, []);
 
   const visiblePackages = useMemo(
@@ -76,9 +164,26 @@ export function BookingSection() {
   );
 
   const quote = useMemo(
-    () => (pkg && vehicleId ? getQuote(pkg, vehicleId) : null),
-    [pkg, vehicleId]
+    () =>
+      pkg && vehicleId
+        ? getQuote(pkg, vehicleId, {
+            extraDays,
+            extraHoursPerDay: extraHours,
+            childSeats
+          })
+        : null,
+    [pkg, vehicleId, extraDays, extraHours, childSeats]
   );
+
+  const selectedVehicle = vehicles.find((v) => v.id === vehicleId) || null;
+
+  function toggleService(id: ConciergeId) {
+    setServices((current) =>
+      current.includes(id)
+        ? current.filter((value) => value !== id)
+        : [...current, id]
+    );
+  }
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -125,14 +230,24 @@ export function BookingSection() {
         : vehicle.nameEn
       : vehicleId;
 
+    const serviceNames = services
+      .map(
+        (id) => conciergeServices.find((service) => service.id === id)?.zh || id
+      )
+      .join("、");
+
     // 訂單通知信（不阻擋付款流程）
     const orderMessage = [
       `訂單編號：${orderNo}`,
       `行程：${pkg.titleZh}`,
       `出發日期：${date}`,
+      `總天數：${quote.days} 天${extraDays ? `（含延長 ${extraDays} 天）` : ""}`,
       `乘客人數：${pax} 位`,
       `上車地點：${pickup}`,
       `車型：${vehicle?.nameZh || vehicleId}`,
+      `每日延長時數：${extraHours ? `${extraHours} 小時` : "無"}`,
+      `兒童安全座椅：${childSeats ? `${childSeats} 張` : "無"}`,
+      `代訂服務需求：${serviceNames || "無"}`,
       `行程總價：${formatNTD(quote.total)}`,
       `線上訂金（30%）：${formatNTD(quote.deposit)}`,
       `尾款：${formatNTD(quote.balance)}`,
@@ -164,19 +279,31 @@ export function BookingSection() {
           itemName: `${pkgTitle} - ${vehicleName} x1`
         })
       });
-      const result = (await response.json()) as {
+      const result = (await response.json().catch(() => null)) as {
         success: boolean;
         action?: string;
         fields?: Record<string, string>;
-      };
+        error?: string;
+      } | null;
 
-      if (!response.ok || !result.success || !result.action || !result.fields) {
-        throw new Error("Checkout failed");
+      if (
+        !response.ok ||
+        !result?.success ||
+        !result.action ||
+        !result.fields
+      ) {
+        console.error(
+          "[FreeGO checkout] failed",
+          response.status,
+          result?.error
+        );
+        throw new Error(result?.error || `HTTP ${response.status}`);
       }
 
       const form = document.createElement("form");
       form.method = "POST";
       form.action = result.action;
+      form.style.display = "none";
       for (const [key, value] of Object.entries(result.fields)) {
         const input = document.createElement("input");
         input.type = "hidden";
@@ -186,8 +313,13 @@ export function BookingSection() {
       }
       document.body.appendChild(form);
       form.submit();
-    } catch {
-      setPayError(b.payError);
+    } catch (error) {
+      console.error("[FreeGO checkout] error", error);
+      setPayError(
+        `${b.payError}${
+          error instanceof Error && error.message ? `（${error.message}）` : ""
+        }`
+      );
       setPaying(false);
     }
   }
@@ -198,9 +330,9 @@ export function BookingSection() {
   return (
     <section id="book" className="section-spacing bg-freego-ivory">
       <div className="container-freego">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-5xl text-center">
           <p className="eyebrow mb-3">{b.eyebrow}</p>
-          <h2 className="text-3xl font-black leading-[1.18] text-freego-teal md:text-[2.6rem]">
+          <h2 className="text-3xl font-black leading-[1.18] text-freego-teal md:whitespace-nowrap md:text-[clamp(2rem,3.45vw,2.6rem)]">
             {b.title}
           </h2>
           <p className="mt-5 text-base leading-8 text-freego-ink/72 md:text-[1.08rem]">
@@ -290,23 +422,12 @@ export function BookingSection() {
                     key={item.id}
                     className="flex flex-col overflow-hidden rounded-freego border border-freego-gray bg-white transition duration-200 hover:-translate-y-1 hover:shadow-lift"
                   >
-                    <div
-                      className={`relative flex h-36 items-center justify-center bg-gradient-to-br ${regionGradients[item.region]}`}
-                    >
-                      <span className="text-6xl drop-shadow">{item.emoji}</span>
-                      <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-freego-teal">
-                        {lang === "zh"
-                          ? regionsMeta[item.region].zh
-                          : regionsMeta[item.region].en}
-                        ・{item.days}
-                        {b.daysUnit}
-                      </span>
-                      {item.popular ? (
-                        <span className="absolute right-4 top-4 rounded-full bg-freego-orange px-3 py-1 text-xs font-black text-freego-ink">
-                          🔥 {b.popularTag}
-                        </span>
-                      ) : null}
-                    </div>
+                    <RouteScenicImage
+                      item={item}
+                      lang={lang}
+                      daysUnit={b.daysUnit}
+                      popularTag={b.popularTag}
+                    />
                     <div className="flex flex-1 flex-col p-6">
                       <h3 className="text-xl font-black leading-tight text-freego-teal">
                         {lang === "zh" ? item.titleZh : item.titleEn}
@@ -515,6 +636,121 @@ export function BookingSection() {
               })}
             </div>
 
+            {/* 加購與客製 */}
+            <div className="mt-8 rounded-freego border border-freego-orange/30 bg-freego-ivory p-5 md:p-6">
+              <p className="text-sm font-black text-freego-teal">
+                ➕ {b.addonsTitle}
+                <span className="ml-2 text-xs font-bold text-freego-ink/50">
+                  {b.addonsSubtitle}
+                </span>
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <label className="grid gap-2">
+                  <span className="text-sm font-bold text-freego-teal">
+                    📅 {b.extraDaysLabel}
+                  </span>
+                  <select
+                    value={extraDays}
+                    onChange={(event) =>
+                      setExtraDays(Number(event.target.value))
+                    }
+                    className={inputClass}
+                  >
+                    <option value={0}>{b.extraDaysNone}</option>
+                    {[1, 2, 3].map((n) => (
+                      <option key={n} value={n}>
+                        {fmt(
+                          b.extraDaysFmt,
+                          n,
+                          selectedVehicle
+                            ? formatNTD(selectedVehicle.dayRate)
+                            : "—"
+                        )}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-bold text-freego-teal">
+                    ⏰ {b.extraHoursLabel}
+                  </span>
+                  <select
+                    value={extraHours}
+                    onChange={(event) =>
+                      setExtraHours(Number(event.target.value))
+                    }
+                    className={inputClass}
+                  >
+                    <option value={0}>{b.extraHoursNone}</option>
+                    {[1, 2, 3, 4].map((n) => (
+                      <option key={n} value={n}>
+                        {fmt(
+                          b.extraHoursFmt,
+                          n,
+                          selectedVehicle
+                            ? formatNTD(selectedVehicle.overtime)
+                            : "—"
+                        )}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-bold text-freego-teal">
+                    👶 {b.childSeatLabel}
+                  </span>
+                  <select
+                    value={childSeats}
+                    onChange={(event) =>
+                      setChildSeats(Number(event.target.value))
+                    }
+                    className={inputClass}
+                  >
+                    <option value={0}>{b.childSeatNone}</option>
+                    {[1, 2, 3].map((n) => (
+                      <option key={n} value={n}>
+                        {fmt(b.childSeatFmt, n)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <p className="mt-5 text-sm font-bold text-freego-teal">
+                🛎️ {b.conciergeLabel}
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                {conciergeServices.map((service) => {
+                  const checked = services.includes(service.id);
+                  return (
+                    <label
+                      key={service.id}
+                      className={`flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-freego border px-3 text-center text-sm font-bold transition ${
+                        checked
+                          ? "border-freego-teal bg-white text-freego-teal ring-2 ring-freego-teal/15"
+                          : "border-freego-gray bg-white/65 text-freego-ink/75 hover:border-freego-orange/55 hover:bg-freego-orange/10"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleService(service.id)}
+                        className="h-4 w-4 accent-freego-teal"
+                      />
+                      <span>{lang === "zh" ? service.zh : service.en}</span>
+                    </label>
+                  );
+                })}
+              </div>
+              {quote ? (
+                <div className="mt-5 flex items-center justify-between rounded-freego bg-freego-teal px-4 py-3 text-white">
+                  <span className="text-sm font-bold">{b.totalLabel}</span>
+                  <span className="text-lg font-black">
+                    {formatNTD(quote.total)}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+
             <button
               type="button"
               onClick={() => {
@@ -546,9 +782,23 @@ export function BookingSection() {
               <div className="mt-4 grid gap-2 text-sm text-freego-ink/75">
                 <p className="flex items-center gap-2">
                   <CalendarDays className="h-4 w-4 text-freego-orange" />
-                  {date}・{pkg.days}
+                  {date}・{quote.days}
                   {b.daysUnit}
+                  {extraHours ? `・+${extraHours}h/day` : ""}
                 </p>
+                {services.length > 0 ? (
+                  <p className="flex items-center gap-2">
+                    🛎️
+                    {services
+                      .map((id) => {
+                        const service = conciergeServices.find(
+                          (item) => item.id === id
+                        );
+                        return lang === "zh" ? service?.zh : service?.en;
+                      })
+                      .join("・")}
+                  </p>
+                ) : null}
                 <p className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-freego-orange" />
                   {pax} {b.paxUnit}・
@@ -634,6 +884,28 @@ export function BookingSection() {
                     </span>
                   </div>
                 ) : null}
+                {quote.overtime > 0 ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/75">
+                      {b.lineOvertime}（+{extraHours}h × {quote.days}
+                      {b.daysUnit}）
+                    </span>
+                    <span className="font-bold">
+                      {formatNTD(quote.overtime)}
+                    </span>
+                  </div>
+                ) : null}
+                {quote.childSeat > 0 ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/75">
+                      {b.lineChildSeat}（{childSeats} × {quote.days}
+                      {b.daysUnit}）
+                    </span>
+                    <span className="font-bold">
+                      {formatNTD(quote.childSeat)}
+                    </span>
+                  </div>
+                ) : null}
                 <div className="mt-2 flex items-center justify-between border-t border-white/15 pt-3 text-base">
                   <span className="font-black">{b.totalLabel}</span>
                   <span className="font-black">{formatNTD(quote.total)}</span>
@@ -664,6 +936,11 @@ export function BookingSection() {
               {payError ? (
                 <p className="mt-3 rounded-freego bg-white/10 p-3 text-sm font-bold leading-6 text-freego-orange">
                   {payError}
+                </p>
+              ) : null}
+              {services.length > 0 ? (
+                <p className="mt-3 rounded-freego bg-white/10 p-2.5 text-xs leading-5 text-white/75">
+                  {b.conciergeNote}
                 </p>
               ) : null}
               <p className="mt-4 text-xs leading-5 text-white/60">{b.terms}</p>
