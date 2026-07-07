@@ -24,6 +24,7 @@ import {
   type TourPackage,
   type VehicleId
 } from "@/lib/catalog";
+import { itineraries } from "@/lib/itineraries";
 import { useLang } from "@/lib/i18n";
 
 const WEB3FORMS_KEY = "73cec211-5017-4fc4-a381-0e26462302da";
@@ -133,6 +134,7 @@ export function BookingSection() {
   const [pax, setPax] = useState(2);
   const [pickup, setPickup] = useState("");
   const [vehicleId, setVehicleId] = useState<VehicleId | "">("");
+  const [itineraryId, setItineraryId] = useState("");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [notes, setNotes] = useState("");
@@ -200,6 +202,7 @@ export function BookingSection() {
   function choosePackage(next: TourPackage) {
     setPkg(next);
     setVehicleId("");
+    setItineraryId(itineraries[next.id]?.[0]?.id || "");
     setErrors({});
     setStep(2);
     document
@@ -246,10 +249,18 @@ export function BookingSection() {
       )
       .join("、");
 
+    const chosenItinerary = itineraries[pkg.id]?.find(
+      (option) => option.id === itineraryId
+    );
+
     // 訂單通知信（不阻擋付款流程）
     const orderMessage = [
       `訂單編號：${orderNo}`,
       `行程：${pkg.titleZh}`,
+      `行程版本：${chosenItinerary?.nameZh || "未選"}`,
+      chosenItinerary
+        ? `行程內容：\n  ${chosenItinerary.stopsZh.join("\n  ")}`
+        : "",
       `出發日期：${date}`,
       `總天數：${quote.days} 天${extraDays ? `（含延長 ${extraDays} 天）` : ""}`,
       `乘客人數：${pax} 位`,
@@ -267,7 +278,9 @@ export function BookingSection() {
       `付款連結：${
         quote.total <= ECPAY_LINK_THRESHOLD ? ECPAY_LINK_LOW : ECPAY_LINK_HIGH
       }（客人自行輸入訂金金額）`
-    ].join("\n");
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     fetch("https://api.web3forms.com/submit", {
       method: "POST",
@@ -476,6 +489,58 @@ export function BookingSection() {
                 {b.backBtn}
               </button>
             </div>
+
+            {/* 建議行程二選一 */}
+            {itineraries[pkg.id] ? (
+              <div className="mt-6 rounded-freego border border-freego-teal/20 bg-freego-ivory p-5 md:p-6">
+                <p className="text-sm font-black text-freego-teal">
+                  🗺️ {b.itinTitle}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-freego-ink/55">
+                  {b.itinSubtitle}
+                </p>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  {itineraries[pkg.id].map((option) => {
+                    const selected = itineraryId === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setItineraryId(option.id)}
+                        className={`relative rounded-freego border p-5 text-left transition ${
+                          selected
+                            ? "border-freego-teal bg-white ring-2 ring-freego-teal/20"
+                            : "border-freego-gray bg-white/70 hover:border-freego-orange hover:bg-white"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-black text-freego-teal">
+                            {lang === "zh" ? option.nameZh : option.nameEn}
+                          </p>
+                          {selected ? (
+                            <BadgeCheck className="h-5 w-5 shrink-0 text-freego-teal" />
+                          ) : null}
+                        </div>
+                        <ul className="mt-3 grid gap-1.5">
+                          {(lang === "zh"
+                            ? option.stopsZh
+                            : option.stopsEn
+                          ).map((stop) => (
+                            <li
+                              key={stop}
+                              className="flex gap-2 text-xs leading-5 text-freego-ink/70"
+                            >
+                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-freego-orange" />
+                              {stop}
+                            </li>
+                          ))}
+                        </ul>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
               <label className="grid gap-2">
@@ -797,6 +862,21 @@ export function BookingSection() {
                   {b.daysUnit}
                   {extraHours ? `・+${extraHours}h/day` : ""}
                 </p>
+                {itineraries[pkg.id] ? (
+                  <p className="flex items-center gap-2">
+                    🗺️ {b.itinLabel}：
+                    {(() => {
+                      const option = itineraries[pkg.id].find(
+                        (item) => item.id === itineraryId
+                      );
+                      return option
+                        ? lang === "zh"
+                          ? option.nameZh
+                          : option.nameEn
+                        : "—";
+                    })()}
+                  </p>
+                ) : null}
                 {services.length > 0 ? (
                   <p className="flex items-center gap-2">
                     🛎️

@@ -382,6 +382,10 @@ const zh = {
     contactPlaceholder: "例如：LINE: joetravel 或 +886 912 345 678",
     notesLabel: "特殊需求（選填）",
     notesPlaceholder: "例如：想加停某景點、長輩行動較慢、素食需求...",
+    itinTitle: "建議行程（選一個版本）",
+    itinSubtitle:
+      "路線整理自人氣旅遊部落客攻略與在地司機推薦，時間僅供參考，出發後皆可彈性調整。",
+    itinLabel: "行程版本",
     addonsTitle: "加購與客製",
     addonsSubtitle: "依需求加購，價格即時更新",
     extraDaysLabel: "延長天數",
@@ -841,6 +845,10 @@ const en: typeof zh = {
     notesLabel: "Special Requests (optional)",
     notesPlaceholder:
       "e.g. add a specific stop, slower pace for seniors, vegetarian meals...",
+    itinTitle: "Suggested Itineraries (pick one)",
+    itinSubtitle:
+      "Curated from top travel bloggers and our local drivers. Times are indicative — everything stays flexible on the road.",
+    itinLabel: "Itinerary",
     addonsTitle: "Add-ons & Customization",
     addonsSubtitle: "Prices update instantly as you add",
     extraDaysLabel: "Extend Days",
