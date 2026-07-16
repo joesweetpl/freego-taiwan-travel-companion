@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { LanguageProvider } from "@/lib/i18n";
 import "./globals.css";
+
+const GA_MEASUREMENT_ID = "G-W392VHP9ET";
 
 export const metadata: Metadata = {
   title: "FreeGO Taiwan Travel Companion｜台灣旅遊陪伴者",
@@ -35,6 +38,19 @@ export default function RootLayout({
     <html lang="zh-TW">
       <body>
         <LanguageProvider>{children}</LanguageProvider>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="freego-google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
       </body>
     </html>
   );

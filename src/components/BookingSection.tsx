@@ -33,6 +33,7 @@ import {
   type ZoneId
 } from "@/lib/attractions";
 import { itineraries } from "@/lib/itineraries";
+import { trackEvent } from "@/lib/analytics";
 import { useLang } from "@/lib/i18n";
 
 const WEB3FORMS_KEY = "73cec211-5017-4fc4-a381-0e26462302da";
@@ -269,6 +270,11 @@ export function BookingSection() {
     setItineraryId(itineraries[next.id]?.[0]?.id || "");
     setErrors({});
     setStep(2);
+    trackEvent("select_item", {
+      item_id: next.id,
+      item_name: lang === "zh" ? next.titleZh : next.titleEn,
+      item_category: "tour_package"
+    });
     document
       .getElementById("book")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -283,6 +289,11 @@ export function BookingSection() {
     setSelectedStyles([]);
     setErrors({});
     setStep(2);
+    trackEvent("select_item", {
+      item_id: "custom",
+      item_name: lang === "zh" ? customBase.titleZh : customBase.titleEn,
+      item_category: "custom_tour"
+    });
     document
       .getElementById("book")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -400,6 +411,13 @@ export function BookingSection() {
 
     console.log("[FreeGO order]", orderNo, pkgTitle, vehicleName, payUrl);
 
+    trackEvent("generate_lead", {
+      currency: "TWD",
+      value: quote.total,
+      lead_source: "booking_flow",
+      package_id: pkg.id,
+      vehicle_id: vehicleId
+    });
     setOrderInfo({ orderNo, payUrl, deposit: quote.deposit });
     setPaying(false);
     document
@@ -1129,7 +1147,15 @@ export function BookingSection() {
             <button
               type="button"
               onClick={() => {
-                if (validateStep2()) setStep(3);
+                if (validateStep2()) {
+                  trackEvent("begin_checkout", {
+                    currency: "TWD",
+                    value: quote?.total,
+                    package_id: pkg?.id,
+                    vehicle_id: vehicleId
+                  });
+                  setStep(3);
+                }
               }}
               className="mt-8 inline-flex min-h-12 w-full items-center justify-center rounded-freego bg-freego-orange px-6 font-bold text-freego-ink shadow-[0_12px_28px_rgba(242,140,56,0.24)] transition hover:-translate-y-0.5 hover:bg-[#e77b24] sm:w-auto"
             >
@@ -1168,6 +1194,13 @@ export function BookingSection() {
               href={orderInfo.payUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent("add_payment_info", {
+                  currency: "TWD",
+                  value: orderInfo.deposit,
+                  payment_type: "ecpay_payment_link"
+                })
+              }
               className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-freego bg-freego-orange px-6 text-lg font-black text-freego-ink shadow-[0_12px_28px_rgba(242,140,56,0.3)] transition hover:-translate-y-0.5 hover:bg-[#e77b24]"
             >
               <ShieldCheck className="h-6 w-6" />

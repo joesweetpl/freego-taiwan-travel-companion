@@ -9,6 +9,7 @@ import {
   Youtube
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 import { useLang } from "@/lib/i18n";
 import { LINE_URL, WHATSAPP_URL } from "@/lib/translations";
 import { Logo } from "./Logo";
@@ -64,6 +65,12 @@ export function Footer() {
                   href={href}
                   target={external ? "_blank" : undefined}
                   rel={external ? "noopener noreferrer" : undefined}
+                  onClick={() =>
+                    trackEvent("contact_click", {
+                      contact_channel: label.toLowerCase(),
+                      contact_location: "footer"
+                    })
+                  }
                   className="inline-flex items-center gap-2 rounded-freego border border-white/12 px-3 py-2 text-sm text-white/72 transition hover:border-freego-orange hover:text-freego-orange"
                 >
                   <Icon className="h-4 w-4" />
