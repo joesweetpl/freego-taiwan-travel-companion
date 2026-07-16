@@ -418,6 +418,13 @@ export function BookingSection() {
       package_id: pkg.id,
       vehicle_id: vehicleId
     });
+    trackEvent("qualify_lead", {
+      currency: "TWD",
+      value: quote.total,
+      lead_source: "booking_flow",
+      package_id: pkg.id,
+      vehicle_id: vehicleId
+    });
     setOrderInfo({ orderNo, payUrl, deposit: quote.deposit });
     setPaying(false);
     document

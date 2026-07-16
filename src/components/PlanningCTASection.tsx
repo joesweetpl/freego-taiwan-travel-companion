@@ -160,6 +160,9 @@ export function PlanningCTASection() {
       trackEvent("generate_lead", {
         lead_source: "travel_request_form"
       });
+      trackEvent("qualify_lead", {
+        lead_source: "travel_request_form"
+      });
       setSubmitted(true);
     } catch {
       setSubmitError(plan.submitError);
