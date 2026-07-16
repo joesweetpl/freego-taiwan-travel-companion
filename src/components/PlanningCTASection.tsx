@@ -10,6 +10,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { useLang } from "@/lib/i18n";
 import { LINE_URL, WHATSAPP_URL } from "@/lib/translations";
 import { Button } from "./Button";
@@ -156,6 +157,12 @@ export function PlanningCTASection() {
         throw new Error(result.error || "Request failed");
       }
 
+      trackEvent("generate_lead", {
+        lead_source: "travel_request_form"
+      });
+      trackEvent("qualify_lead", {
+        lead_source: "travel_request_form"
+      });
       setSubmitted(true);
     } catch {
       setSubmitError(plan.submitError);
@@ -224,6 +231,12 @@ export function PlanningCTASection() {
                   href={LINE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("contact_click", {
+                      contact_channel: "line",
+                      contact_location: "travel_request_success"
+                    })
+                  }
                   full
                 >
                   {plan.successLine}
@@ -232,6 +245,12 @@ export function PlanningCTASection() {
                   href={WHATSAPP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("contact_click", {
+                      contact_channel: "whatsapp",
+                      contact_location: "travel_request_success"
+                    })
+                  }
                   variant="secondary"
                   full
                 >
